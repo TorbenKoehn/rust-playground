@@ -1,4 +1,5 @@
 pub mod read;
+pub mod write;
 
 use std::fmt::{Debug, Display};
 
@@ -57,6 +58,103 @@ pub enum Value {
     handle: String,
     arguments: Vec<TranslatedFsStringArgument>,
   },
+}
+
+impl Value {
+  pub fn length(&self) -> usize {
+    match self {
+      Self::None => 0,
+      Self::Byte(_) => 1,
+      Self::Short(_) => 2,
+      Self::UShort(_) => 2,
+      Self::Int(_) => 4,
+      Self::UInt(_) => 4,
+      Self::Float(_) => 4,
+      Self::Double(_) => 8,
+      Self::IVec2(_) => 8,
+      Self::IVec3(_) => 12,
+      Self::IVec4(_) => 16,
+      Self::Vec2(_) => 8,
+      Self::Vec3(_) => 12,
+      Self::Vec4(_) => 16,
+      Self::Mat2(_) => 16,
+      Self::Mat3(_) => 36,
+      Self::Mat3x4(_) => 48,
+      Self::Mat4x3(_) => 48,
+      Self::Mat4(_) => 64,
+      Self::Bool(_) => 1,
+      Self::String(value) => value.len() + 1,
+      Self::Path(value) => value.len() + 1,
+      Self::FixedString(value) => value.len() + 1,
+      Self::LsString(value) => value.len() + 1,
+      Self::ULongLong(_) => 8,
+      Self::ScratchBuffer(value) => value.len(),
+      Self::Long(_) => 8,
+      Self::Int8(_) => 1,
+      Self::TranslatedString {
+        version,
+        value,
+        handle,
+      } => 4 + value.len() + 1 + handle.len() + 1,
+      Self::WString(value) => value.len() + 1,
+      Self::LswString(value) => value.len() + 1,
+      Self::Uuid(_) => 16,
+      Self::Int64(_) => 8,
+      Self::TranslatedFsString {
+        version,
+        value,
+        handle,
+        arguments,
+      } => {
+        let mut length = 4 + value.len() + 1 + handle.len() + 1;
+        for argument in arguments {
+          length += 4 + argument.key.len() + 1 + argument.value.len();
+        }
+        length
+      }
+    }
+  }
+}
+
+impl Into<u32> for Value {
+  fn into(self) -> u32 {
+    match self {
+      Self::None => 0,
+      Self::Byte(_) => 1,
+      Self::Short(_) => 2,
+      Self::UShort(_) => 3,
+      Self::Int(_) => 4,
+      Self::UInt(_) => 5,
+      Self::Float(_) => 6,
+      Self::Double(_) => 7,
+      Self::IVec2(_) => 8,
+      Self::IVec3(_) => 9,
+      Self::IVec4(_) => 10,
+      Self::Vec2(_) => 11,
+      Self::Vec3(_) => 12,
+      Self::Vec4(_) => 13,
+      Self::Mat2(_) => 14,
+      Self::Mat3(_) => 15,
+      Self::Mat3x4(_) => 16,
+      Self::Mat4x3(_) => 17,
+      Self::Mat4(_) => 18,
+      Self::Bool(_) => 19,
+      Self::String(_) => 20,
+      Self::Path(_) => 21,
+      Self::FixedString(_) => 22,
+      Self::LsString(_) => 23,
+      Self::ULongLong(_) => 24,
+      Self::ScratchBuffer(_) => 25,
+      Self::Long(_) => 26,
+      Self::Int8(_) => 27,
+      Self::TranslatedString { .. } => 28,
+      Self::WString(_) => 29,
+      Self::LswString(_) => 30,
+      Self::Uuid(_) => 31,
+      Self::Int64(_) => 32,
+      Self::TranslatedFsString { .. } => 33,
+    }
+  }
 }
 
 impl Debug for Value {

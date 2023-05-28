@@ -141,7 +141,6 @@ pub trait ResourceValueReadExt: Read {
         ],
       ])),
       19 => Ok(Value::Bool(self.read_u8()? != 0)),
-
       24 => Ok(Value::ULongLong(self.read_u64::<LittleEndian>()?)),
       26 => Ok(Value::Long(self.read_i64::<LittleEndian>()?)),
       27 => Ok(Value::Int8(self.read_i8()?)),
